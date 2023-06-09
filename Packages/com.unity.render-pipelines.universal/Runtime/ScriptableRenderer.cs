@@ -72,6 +72,11 @@ namespace UnityEngine.Rendering.Universal
             return 0;
         }
 
+        public virtual RTHandle GetUpscaledTextureHandle()
+        {
+            return null;
+        }
+
         /// <summary>
         /// Returns true if the given camera render type is supported in the renderer's current state.
         /// </summary>
@@ -1062,11 +1067,11 @@ namespace UnityEngine.Rendering.Universal
         internal void RecordCustomRenderGraphPasses(RenderGraph renderGraph, ScriptableRenderContext context, ref RenderingData renderingData, RenderPassEvent injectionPoint)
         {
             int range = ScriptableRenderPass.GetRenderPassEventRange(injectionPoint);
-            int nextValue = (int) injectionPoint + range;
+            int nextValue = (int)injectionPoint + range;
 
             foreach (ScriptableRenderPass pass in m_ActiveRenderPassQueue)
             {
-                if (pass.renderPassEvent >= injectionPoint && (int) pass.renderPassEvent < nextValue)
+                if (pass.renderPassEvent >= injectionPoint && (int)pass.renderPassEvent < nextValue)
                     pass.RecordRenderGraph(renderGraph, ref renderingData);
             }
         }

@@ -6,12 +6,12 @@ namespace UnityEngine.Rendering.Universal
 {
     internal class Renderer2D : ScriptableRenderer
     {
-        #if UNITY_SWITCH
+#if UNITY_SWITCH
         internal const int k_DepthBufferBits = 24;
-        #else
+#else
         internal const int k_DepthBufferBits = 32;
-        #endif
-        
+#endif
+
         const int k_FinalBlitPassQueueOffset = 1;
         const int k_AfterFinalBlitPassQueueOffset = k_FinalBlitPassQueueOffset + 1;
 
@@ -33,6 +33,7 @@ namespace UnityEngine.Rendering.Universal
         // as they must be the same across all ScriptableRenderer types for camera stacking to work.
         RTHandle m_ColorTextureHandle;
         RTHandle m_DepthTextureHandle;
+        RTHandle m_UpscaledTextureHandle;
 
         Material m_BlitMaterial;
         Material m_BlitHDRMaterial;
@@ -260,7 +261,7 @@ namespace UnityEngine.Rendering.Universal
                 m_DrawOffscreenUIPass.Setup(cameraTargetDescriptor, depthTargetHandle);
                 EnqueuePass(m_DrawOffscreenUIPass);
             }
-            
+
             // TODO: Investigate how to make FXAA work with HDR output.
             bool isFXAAEnabled = cameraData.antialiasing == AntialiasingMode.FastApproximateAntialiasing && !outputToHDR;
 
@@ -305,6 +306,7 @@ namespace UnityEngine.Rendering.Universal
 
                     m_UpscalePass.Setup(colorTargetHandle, upscaleWidth, upscaleHeight, ppc.finalBlitFilterMode, ref renderingData, out finalTargetHandle);
                     EnqueuePass(m_UpscalePass);
+                    m_UpscaledTextureHandle = finalTargetHandle;
                 }
             }
 
@@ -313,6 +315,7 @@ namespace UnityEngine.Rendering.Universal
                 finalPostProcessPass.SetupFinalPass(finalTargetHandle, hasPassesAfterPostProcessing, needsColorEncoding);
                 EnqueuePass(finalPostProcessPass);
             }
+
             else if (lastCameraInStack && finalTargetHandle != k_CameraTarget)
             {
                 m_FinalBlitPass.Setup(cameraTargetDescriptor, finalTargetHandle);
@@ -335,7 +338,12 @@ namespace UnityEngine.Rendering.Universal
 
         internal override RTHandle GetCameraColorBackBuffer(CommandBuffer cmd)
         {
-            return m_ColorTextureHandle;;
+            return m_ColorTextureHandle;
+        }
+
+        public override RTHandle GetUpscaledTextureHandle()
+        {
+            return m_UpscaledTextureHandle;
         }
     }
 }
