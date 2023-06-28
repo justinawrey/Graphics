@@ -14,7 +14,7 @@ namespace UnityEngine.Rendering.Universal
         {
             Debug.Assert(!lights.Contains(light));
             lights.Add(light);
-            ErrorIfDuplicateGlobalLight(light);
+            // ErrorIfDuplicateGlobalLight(light);
         }
 
         // Called during OnEnable
